@@ -325,20 +325,30 @@
     return -1;
   }
 
+  function madePays(h, p){
+    // what an exactly-made bid is worth: normal scoring, or the slam rate if that's better
+    var normal = h.tricks[p] + S.opts.bonus;
+    if(S.opts.slam && h.bids[p] === h.cards) return Math.max(normal, h.cards * 10);
+    return normal;
+  }
+
+  function slamPays(cards){
+    return Math.max(cards + S.opts.bonus, cards * 10);
+  }
+
   function handScore(h, p){
     if(!h || h.tricks === null) return null;
     var bid = h.bids[p], took = h.tricks[p];
-    if(bid === took){
-      if(S.opts.slam && bid === h.cards) return h.cards * 10;
-      return took + S.opts.bonus;
-    }
+    if(bid === took) return madePays(h, p);
     if(S.opts.fail === "zero") return 0;
     if(S.opts.fail === "diff") return -Math.abs(bid - took);
     return took;
   }
 
   function isSlam(h, p){
-    return S.opts.slam && h.tricks !== null && h.bids[p] === h.cards && h.tricks[p] === h.cards;
+    return S.opts.slam && h.tricks !== null &&
+           h.bids[p] === h.cards && h.tricks[p] === h.cards &&
+           h.cards * 10 > h.cards + S.opts.bonus;
   }
 
   function totalsThrough(idx){
@@ -524,7 +534,7 @@
     slamBox.type = "checkbox"; slamBox.checked = !!S.opts.slam;
     slamBox.onchange = function(){ S.opts.slam = slamBox.checked; };
     var st2 = el("div","t","Bid the whole hand, take the whole hand");
-    st2.appendChild(el("small",null,"Bid every trick in the hand and win them all and you score 10 per trick instead of the usual bonus — 4 for 4 pays 40."));
+    st2.appendChild(el("small",null,"Bid every trick in the hand and win them all and you score 10 per trick — 4 for 4 pays 40. Whichever is worth more, this or the usual bonus, is what you get, so 1 for 1 still pays " + (1 + S.opts.bonus) + "."));
     slamLbl.appendChild(slamBox); slamLbl.appendChild(st2);
     opts.appendChild(slamLbl);
 
@@ -651,7 +661,7 @@
         bm.appendChild(el("b",null,String(draft.bids[pi])));
         if(S.opts.slam && draft.bids[pi] === cards){
           bm.appendChild(document.createTextNode(" — all of them, "));
-          bm.appendChild(el("b",null,String(cards*10)));
+          bm.appendChild(el("b",null,String(slamPays(cards))));
           bm.appendChild(document.createTextNode(" if it lands"));
         }
         top.appendChild(bm);
