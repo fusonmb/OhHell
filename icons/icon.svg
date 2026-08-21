@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Master art for icons/*.png.  Full-bleed square: the rounding is the
+       operating system's to apply, not ours.  Palette is the scorepad's own
+       (--ground, --card, --rouge, --gold). -->
+  <defs>
+    <radialGradient id="ground" cx="50%" cy="42%" r="72%">
+      <stop offset="0" stop-color="#1A222C"/>
+      <stop offset="1" stop-color="#0E1218"/>
+    </radialGradient>
+    <path id="heart" d="M0,34 C-14,20 -46,4 -46,-16 C-46,-34 -30,-42 -16,-36
+                        C-8,-32 -2,-26 0,-20 C2,-26 8,-32 16,-36
+                        C30,-42 46,-34 46,-16 C46,4 14,20 0,34 Z"/>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#ground)"/>
+
+  <g transform="translate(256 256) scale(.94) translate(-256 -256)">
+    <!-- gold card, fanned left -->
+    <g transform="rotate(-16 256 402)">
+      <rect x="168" y="127" width="176" height="246" rx="16" fill="#C9A227"/>
+      <rect x="180" y="139" width="152" height="222" rx="9" fill="none"
+            stroke="#0E1218" stroke-opacity=".28" stroke-width="5"/>
+    </g>
+    <!-- cream card, face up -->
+    <g transform="rotate(8 256 402)">
+      <rect x="168" y="127" width="176" height="246" rx="16" fill="#F2EDE3"/>
+      <use href="#heart" fill="#C42A34" transform="translate(256 258) scale(1.55)"/>
+      <use href="#heart" fill="#C42A34" transform="translate(196 165) scale(.42)"/>
+    </g>
+  </g>
+</svg>

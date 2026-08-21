@@ -4,6 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oh Hell — Scorepad</title>
+<!-- Tab icon, inline so there is no second request and no favicon.ico
+     404 on every load.  Gold card behind, cream card face up, rouge heart. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'> <rect width='64' height='64' rx='14' fill='%230E1218'/> <g transform='rotate(-17 32 54)'><rect x='13' y='11' width='28' height='41' rx='5' fill='%23C9A227'/></g> <g transform='rotate(8 32 54)'><rect x='22' y='11' width='28' height='41' rx='5' fill='%23F2EDE3'/><path fill='%23C42A34' transform='translate(36 32) scale(.26)' d='M0,34 C-14,20 -46,4 -46,-16 C-46,-34 -30,-42 -16,-36 C-8,-32 -2,-26 0,-20 C2,-26 8,-32 16,-36 C30,-42 46,-34 46,-16 C46,4 14,20 0,34 Z'/></g> </svg>">
+<!-- Home-screen install.  iOS ignores the manifest's icons and uses
+     apple-touch-icon, which must be a real PNG; Android uses the manifest.
+     Both want a full-bleed square, so these are not the tab icon: the
+     rounding is the operating system's to apply, not ours.  icons/icon.svg
+     is the master art the PNGs are rendered from. -->
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="Oh Hell">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E1218">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
