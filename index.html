@@ -384,25 +384,29 @@
 
   function gameOver(){ return S.hands.length > 0 && firstOpenHand() === -1; }
 
-  /* ---------------- storage (optional) ---------------- */
+  /* ---------------- storage ---------------- */
+
+  /* This used to call window.storage, which no browser provides, so every
+     save was a no-op and every reload dropped the game on the floor.  A
+     scorepad that forgets the hand when the phone locks is not a scorepad,
+     and offline makes it worse: an installed app gets evicted from memory
+     far more often than a tab does.  localStorage instead.
+
+     load() keeps its callback shape so boot does not care where the game
+     came from.  Both sides are wrapped: Safari in private mode throws on
+     write rather than failing quietly. */
+
+  var SAVE_KEY = "ohhell:game";
 
   function save(){
-    try{
-      if(window.storage && window.storage.set){
-        window.storage.set("ohhell:game", JSON.stringify(S)).catch(function(){});
-      }
-    }catch(e){}
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
   }
   function load(cb){
-    try{
-      if(window.storage && window.storage.get){
-        window.storage.get("ohhell:game").then(function(r){
-          if(r && r.value){ try{ cb(JSON.parse(r.value)); return; }catch(e){} }
-          cb(null);
-        }).catch(function(){ cb(null); });
-        return;
-      }
-    }catch(e){}
+    var raw = null;
+    try{ raw = localStorage.getItem(SAVE_KEY); }catch(e){}
+    if(raw){
+      try{ cb(JSON.parse(raw)); return; }catch(e){}   /* corrupt: start fresh */
+    }
     cb(null);
   }
 
@@ -973,5 +977,16 @@
   });
 })();
 </script>
+<script>
+  /* Offline shell.  Service workers need a secure origin, so this is a
+     no-op on file:// — opening index.html straight off disk still works,
+     it just is not cached. */
+  if("serviceWorker" in navigator && location.protocol !== "file:"){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+</script>
 </body>
+
 </html>
