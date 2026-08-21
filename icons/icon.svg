@@ -4,8 +4,9 @@
 
        Five cards spread as a hand, the middle one lowest — the hand sizes
        ramp 10 down to 1 and back up, which is the shape of a game of Oh
-       Hell.  Horns on the middle card for the name.  Palette is the
-       scorepad's own (--ground, --card, --card-2, --rouge).
+       Hell.  Horns on the middle card for the name, short and curved so they
+       read as horns and not as ears.  Palette is the scorepad's own
+       (--ground, --card, --card-2, --gold, --rouge, --ink).
 
        The tab favicon is a separate, simpler drawing inlined in index.html:
        four suit pips and a pair of horns do not survive 16px. -->
@@ -31,25 +32,23 @@
 
   <!-- the spread hand, drawn outward-in so the middle card lands on top -->
   <g stroke="#0E1218" stroke-width="9">
-    <g transform="rotate(-13 132 410)"><rect x="62"  y="130" width="140" height="198" rx="14" fill="#F2EDE3"/></g>
-    <g transform="rotate(13 380 410)"><rect x="310" y="130" width="140" height="198" rx="14" fill="#F2EDE3"/></g>
+    <g transform="rotate(-13 132 410)"><rect x="62"  y="130" width="140" height="198" rx="14" fill="#C9A227"/></g>
+    <g transform="rotate(13 380 410)"><rect x="310" y="130" width="140" height="198" rx="14" fill="#C9A227"/></g>
     <g transform="rotate(-6 194 410)"><rect x="124" y="170" width="140" height="198" rx="14" fill="#E4DCCC"/></g>
     <g transform="rotate(6 318 410)"><rect x="248" y="170" width="140" height="198" rx="14" fill="#E4DCCC"/></g>
   </g>
 
   <!-- horns first, so they rise from behind the middle card's top edge -->
   <g fill="#C42A34">
-    <path d="M194,226 C172,208 156,182 150,144 C172,158 198,182 218,206 C224,214 230,220 238,226 Z"/>
-    <path d="M318,226 C340,208 356,182 362,144 C340,158 314,182 294,206 C288,214 282,220 274,226 Z"/>
+    <path d="M196,228 C174,216 158,194 152,152 C166,170 176,186 186,200 C198,216 216,224 238,228 Z"/>
+    <path d="M316,228 C338,216 354,194 360,152 C346,170 336,186 326,200 C314,216 296,224 274,228 Z"/>
   </g>
 
-  <rect x="186" y="212" width="140" height="198" rx="14" fill="#C42A34" stroke="#0E1218" stroke-width="9"/>
+  <rect x="186" y="212" width="140" height="198" rx="14" fill="#F2EDE3" stroke="#0E1218" stroke-width="9"/>
 
-  <g fill="#F2EDE3">
-    <g transform="translate(224 290) scale(.42)"><use href="#spade"/></g>
-    <g transform="translate(288 290) scale(.42)"><use href="#heart"/></g>
-    <g transform="translate(224 350) scale(.42)"><use href="#diamond"/></g>
-    <g transform="translate(288 350) scale(.42)"><use href="#club"/></g>
-  </g>
+  <g transform="translate(224 290) scale(.42)"><use href="#spade"   fill="#12161C"/></g>
+  <g transform="translate(288 290) scale(.42)"><use href="#heart"   fill="#C42A34"/></g>
+  <g transform="translate(224 350) scale(.42)"><use href="#diamond" fill="#C42A34"/></g>
+  <g transform="translate(288 350) scale(.42)"><use href="#club"    fill="#12161C"/></g>
   </g>
 </svg>
