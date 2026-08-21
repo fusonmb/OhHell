@@ -7,7 +7,7 @@
    Bump CACHE whenever a precached file changes.  Old caches are dropped on
    activate, so a stale shell cannot outlive a deploy. */
 
-var CACHE = "ohhell-v3";   /* bumped: new icon art */
+var CACHE = "ohhell-v4";   /* bumped: new icon art */
 
 var SHELL = [
   "./",
