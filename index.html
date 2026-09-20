@@ -292,7 +292,7 @@
     {k:"C", g:"♣", red:false, name:"Clubs"}
   ];
   var PATTERNS = [
-    {k:"down-up", label:"10 · 1 · 10", desc:"Down to one, back up"},
+    {k:"down-up", label:"10 · 1 · 1 · 10", desc:"Down to one twice, back up"},
     {k:"up-down", label:"1 · 10 · 1", desc:"Up to ten, back down"},
     {k:"down",    label:"10 · 1",     desc:"Down to one, stop"},
     {k:"up",      label:"1 · 10",     desc:"Up to ten, stop"}
@@ -323,8 +323,11 @@
   function buildHands(names, opts){
     var m = opts.maxCards, seq = [], i;
     if(opts.pattern === "down-up"){
+      /* The one-card hand is played twice — once arriving, once leaving —
+         so the deal turns around on a repeated hand rather than bouncing
+         straight off it.  The second loop therefore starts at 1, not 2. */
       for(i=m;i>=1;i--) seq.push(i);
-      for(i=2;i<=m;i++) seq.push(i);
+      for(i=1;i<=m;i++) seq.push(i);
     } else if(opts.pattern === "up-down"){
       for(i=1;i<=m;i++) seq.push(i);
       for(i=m-1;i>=1;i--) seq.push(i);
