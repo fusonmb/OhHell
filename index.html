@@ -293,9 +293,9 @@
   ];
   var PATTERNS = [
     {k:"down-up", label:"10 · 1 · 1 · 10", desc:"Down to one twice, back up"},
-    {k:"up-down", label:"1 · 10 · 1", desc:"Up to ten, back down"},
+    {k:"up-down", label:"1 · 10 · 1", desc:"Up to the top, back down"},
     {k:"down",    label:"10 · 1",     desc:"Down to one, stop"},
-    {k:"up",      label:"1 · 10",     desc:"Up to ten, stop"}
+    {k:"up",      label:"1 · 10",     desc:"Up to the top, stop"}
   ];
 
   var app = document.getElementById("app");
@@ -310,7 +310,7 @@
     return {
       stage:"setup",
       names:["Player 1","Player 2","Player 3","Player 4"],
-      opts:{pattern:"down-up", maxCards:10, hook:false, bonus:10, fail:"tricks", slam:true, decks:1},
+      opts:{pattern:"down-up", maxCards:7, hook:false, bonus:10, fail:"tricks", slam:true, decks:1},
       hands:[]
     };
   }
