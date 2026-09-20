@@ -211,30 +211,30 @@
     letter-spacing:.08em;text-transform:uppercase;
     border-bottom:1px solid var(--line);white-space:nowrap;
   }
-  /* The corner heads two things at once, so its labels line up with the
-     row content below: .rh-head spans .rh-cards + .rh-suit, which puts
-     "Dealer" exactly over the names.  Left padding drops to 0 to match
-     th.rowhead, or the header would sit 8px right of its column. */
+  /* The corner's left padding drops to 0 to match th.rowhead below it, or
+     "Hand" sits 8px right of the numbers it heads. */
   table.score thead th.corner{text-align:left;left:0;z-index:3;padding-left:0}
   td.cell{min-width:74px}
   th.rowhead{
     position:sticky;left:0;background:var(--ground-2);z-index:1;
-    text-align:left;padding:8px 12px 8px 0;white-space:nowrap;
+    text-align:left;padding:8px 12px 8px 0;white-space:nowrap;vertical-align:middle;
   }
-  .rh-in{display:flex;align-items:baseline;gap:8px}
   .rh-cards{font-family:var(--display);font-size:20px;width:22px;text-align:right}
-  .rh-suit{font-size:15px;color:var(--steel);width:14px}
+  .rh-suit{font-size:15px;color:var(--steel)}
   .rh-suit.red{color:var(--rouge)}
   .rh-deal{font-size:11px;color:var(--steel);letter-spacing:.06em;text-transform:uppercase}
   td.cell{padding:7px 6px;text-align:center;vertical-align:middle}
-  /* Dealer rides with the scores instead of the sticky hand column: on a
-     narrow screen the fixed strip is worth spending on the hand alone, and
-     the name scrolls out of the way with everything else.  It keeps the
-     .cell class so it picks up the row hover, edit and pending states. */
+  /* Only the hand number is pinned; its trump and dealer are ordinary
+     columns that scroll off with the scores, so the fixed strip on a phone
+     costs as little width as it can.  Both keep the .cell class so they
+     still pick up the row hover, edit and pending states — which also means
+     their own rules must sit after td.cell, since the specificity is equal
+     and nothing but source order separates them. */
   td.dealer-cell,th.dealer-cell{
     min-width:0;text-align:left;padding:7px 18px 7px 10px;vertical-align:middle;
   }
   table.score thead th.dealer-cell{text-align:left;padding-left:10px}
+  td.trump-cell,th.trump-cell{min-width:0;padding:7px 8px}
   .cell-in{display:inline-flex;flex-direction:column;align-items:center;gap:1px;
     padding:3px 8px;border-radius:2px;border:1px solid transparent;min-width:52px}
   .cell-in.made{border-color:rgba(201,162,39,.55);background:rgba(201,162,39,.09)}
@@ -870,6 +870,7 @@
     var thead = document.createElement("thead");
     var hr = document.createElement("tr");
     hr.appendChild(el("th","corner rowhead","Hand"));
+    hr.appendChild(el("th","cell trump-cell","Trump"));
     hr.appendChild(el("th","cell dealer-cell","Dealer"));
 
     var finals = totalsThrough(S.hands.length - 1);
@@ -891,11 +892,12 @@
       var s = h.trump ? suitOf(h.trump) : null;
 
       var rh = el("th","rowhead");
-      var rhIn = el("div","rh-in");
-      rhIn.appendChild(el("div","rh-cards", String(h.cards)));
-      rhIn.appendChild(el("div","rh-suit" + (s && s.red ? " red":""), s ? s.g : "·"));
-      rh.appendChild(rhIn);
+      rh.appendChild(el("div","rh-cards", String(h.cards)));
       tr.appendChild(rh);
+
+      var trump = el("td","cell trump-cell");
+      trump.appendChild(el("div","rh-suit" + (s && s.red ? " red":""), s ? s.g : "·"));
+      tr.appendChild(trump);
 
       var dealer = el("td","cell dealer-cell");
       dealer.appendChild(el("div","rh-deal", S.names[h.dealer].slice(0,10)));
@@ -934,6 +936,7 @@
     var tfoot = document.createElement("tfoot");
     var fr = document.createElement("tr");
     fr.appendChild(el("th","rowhead","Total"));
+    fr.appendChild(el("td","cell trump-cell",""));
     fr.appendChild(el("td","cell dealer-cell",""));
     var best = Math.max.apply(null, running);
     colOrder.forEach(function(pi){
