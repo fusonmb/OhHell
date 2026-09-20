@@ -291,11 +291,14 @@
     {k:"D", g:"♦", red:true,  name:"Diamonds"},
     {k:"C", g:"♣", red:false, name:"Clubs"}
   ];
+  /* No label here: the hand size is a setting, so a fixed "10 · 1 · 10"
+     could only ever be right by accident.  shapeLabel() reads the real
+     sequence instead, and cannot disagree with what gets dealt. */
   var PATTERNS = [
-    {k:"down-up", label:"10 · 1 · 1 · 10", desc:"Down to one twice, back up"},
-    {k:"up-down", label:"1 · 10 · 1", desc:"Up to the top, back down"},
-    {k:"down",    label:"10 · 1",     desc:"Down to one, stop"},
-    {k:"up",      label:"1 · 10",     desc:"Up to the top, stop"}
+    {k:"down-up", desc:"Down to one twice, back up"},
+    {k:"up-down", desc:"Up to the top, back down"},
+    {k:"down",    desc:"Down to one, stop"},
+    {k:"up",      desc:"Up to the top, stop"}
   ];
 
   var app = document.getElementById("app");
@@ -320,23 +323,41 @@
     return Math.max(1, Math.min(15, Math.floor((52 * d - 1) / n)));
   }
 
-  function buildHands(names, opts){
-    var m = opts.maxCards, seq = [], i;
-    if(opts.pattern === "down-up"){
+  function cardSequence(pattern, m){
+    var seq = [], i;
+    if(pattern === "down-up"){
       /* The one-card hand is played twice — once arriving, once leaving —
          so the deal turns around on a repeated hand rather than bouncing
          straight off it.  The second loop therefore starts at 1, not 2. */
       for(i=m;i>=1;i--) seq.push(i);
       for(i=1;i<=m;i++) seq.push(i);
-    } else if(opts.pattern === "up-down"){
+    } else if(pattern === "up-down"){
       for(i=1;i<=m;i++) seq.push(i);
       for(i=m-1;i>=1;i--) seq.push(i);
-    } else if(opts.pattern === "down"){
+    } else if(pattern === "down"){
       for(i=m;i>=1;i--) seq.push(i);
     } else {
       for(i=1;i<=m;i++) seq.push(i);
     }
-    return seq.map(function(c,idx){
+    return seq;
+  }
+
+  /* The shape of a sequence, as its ends and every place it turns: a run
+     of hands going one way collapses to nothing, so 7 6 5 4 3 2 1 1 2 3 4
+     5 6 7 prints as 7 · 1 · 1 · 7 and a one-card game prints as 1 · 1. */
+  function shapeLabel(seq){
+    function dir(a,b){ return a === b ? 0 : (b > a ? 1 : -1); }
+    var pts = [], i;
+    for(i=0;i<seq.length;i++){
+      var before = i > 0 ? dir(seq[i-1], seq[i]) : 0;
+      var after  = i < seq.length-1 ? dir(seq[i], seq[i+1]) : 0;
+      if(i === 0 || i === seq.length-1 || before !== after) pts.push(seq[i]);
+    }
+    return pts.join(" · ");
+  }
+
+  function buildHands(names, opts){
+    return cardSequence(opts.pattern, opts.maxCards).map(function(c,idx){
       return {cards:c, dealer: idx % names.length, trump:null, bids:null, tricks:null};
     });
   }
@@ -488,7 +509,7 @@
     PATTERNS.forEach(function(pat){
       var b = el("button","pattern" + (S.opts.pattern===pat.k?" on":""));
       b.type = "button";
-      b.appendChild(el("div","p-name", pat.label.replace(/10/g, String(m))));
+      b.appendChild(el("div","p-name", shapeLabel(cardSequence(pat.k, m))));
       b.appendChild(el("div","p-meta", pat.desc));
       b.onclick = function(){ S.opts.pattern = pat.k; render(); };
       pg.appendChild(b);
@@ -505,7 +526,7 @@
     mmin.onclick = function(){ if(S.opts.maxCards>1){ S.opts.maxCards--; render(); } };
     mplus.onclick = function(){ if(S.opts.maxCards<cap){ S.opts.maxCards++; render(); } };
     mc.appendChild(mmin); mc.appendChild(mval); mc.appendChild(mplus);
-    var hands = buildHands(S.names, S.opts).length;
+    var hands = cardSequence(S.opts.pattern, S.opts.maxCards).length;
     mc.appendChild(el("div","hand-fact", hands + " hands · " + (S.opts.decks===2?"two decks":"one deck") +
       " deals up to " + cap + " each to " + S.names.length + " players"));
     mx.appendChild(mc);
@@ -559,7 +580,18 @@
     slamBox.type = "checkbox"; slamBox.checked = !!S.opts.slam;
     slamBox.onchange = function(){ S.opts.slam = slamBox.checked; };
     var st2 = el("div","t","Bid the whole hand, take the whole hand");
-    st2.appendChild(el("small",null,"Bid every trick in the hand and win them all and you score 10 per trick — 4 for 4 pays 40. Whichever is worth more, this or the usual bonus, is what you get, so 1 for 1 still pays " + (1 + S.opts.bonus) + "."));
+    /* Worked from the biggest hand actually being dealt, and through
+       slamPays, so the example cannot claim a payout the scoring would not
+       hand out.  At a 5-point bonus 1 for 1 pays the slam rate, not the
+       bonus rate, which the old fixed arithmetic got wrong. */
+    var big = S.opts.maxCards;
+    var slamTxt = "Bid every trick in the hand and win them all and you score 10 per trick — " +
+                  big + " for " + big + " pays " + slamPays(big) + ".";
+    if(big > 1){
+      slamTxt += " Whichever is worth more, this or the usual bonus, is what you get, so 1 for 1 still pays " +
+                 slamPays(1) + ".";
+    }
+    st2.appendChild(el("small",null,slamTxt));
     slamLbl.appendChild(slamBox); slamLbl.appendChild(st2);
     opts.appendChild(slamLbl);
 
@@ -572,7 +604,7 @@
       if(S.opts.bonus === v) o.selected = true;
       bsel.appendChild(o);
     });
-    bsel.onchange = function(){ S.opts.bonus = parseInt(bsel.value,10); };
+    bsel.onchange = function(){ S.opts.bonus = parseInt(bsel.value,10); render(); };
     bonusF.appendChild(bsel);
     opts.appendChild(bonusF);
 
