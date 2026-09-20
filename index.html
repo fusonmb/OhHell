@@ -216,8 +216,7 @@
      "Dealer" exactly over the names.  Left padding drops to 0 to match
      th.rowhead, or the header would sit 8px right of its column. */
   table.score thead th.corner{text-align:left;left:0;z-index:3;padding-left:0}
-  .rh-head{width:44px}
-  th.rowhead,td.cell{min-width:74px}
+  td.cell{min-width:74px}
   th.rowhead{
     position:sticky;left:0;background:var(--ground-2);z-index:1;
     text-align:left;padding:8px 12px 8px 0;white-space:nowrap;
@@ -228,6 +227,14 @@
   .rh-suit.red{color:var(--rouge)}
   .rh-deal{font-size:11px;color:var(--steel);letter-spacing:.06em;text-transform:uppercase}
   td.cell{padding:7px 6px;text-align:center;vertical-align:middle}
+  /* Dealer rides with the scores instead of the sticky hand column: on a
+     narrow screen the fixed strip is worth spending on the hand alone, and
+     the name scrolls out of the way with everything else.  It keeps the
+     .cell class so it picks up the row hover, edit and pending states. */
+  td.dealer-cell,th.dealer-cell{
+    min-width:0;text-align:left;padding:7px 18px 7px 10px;vertical-align:middle;
+  }
+  table.score thead th.dealer-cell{text-align:left;padding-left:10px}
   .cell-in{display:inline-flex;flex-direction:column;align-items:center;gap:1px;
     padding:3px 8px;border-radius:2px;border:1px solid transparent;min-width:52px}
   .cell-in.made{border-color:rgba(201,162,39,.55);background:rgba(201,162,39,.09)}
@@ -240,6 +247,14 @@
   tr.hand-row{cursor:pointer}
   tr.hand-row:hover th.rowhead,tr.hand-row:hover td.cell{background:rgba(242,237,227,.045)}
   tr.hand-row.editing th.rowhead,tr.hand-row.editing td.cell{background:rgba(196,42,52,.13)}
+  /* The sticky cell must stay opaque or the dealer name shows through it
+     as the table scrolls, so its tints are layered over the ground. */
+  tr.hand-row:hover th.rowhead{
+    background:linear-gradient(rgba(242,237,227,.045),rgba(242,237,227,.045)) var(--ground-2);
+  }
+  tr.hand-row.editing th.rowhead{
+    background:linear-gradient(rgba(196,42,52,.13),rgba(196,42,52,.13)) var(--ground-2);
+  }
   tr.pending th.rowhead,tr.pending td.cell{opacity:.42}
   tfoot th,tfoot td{border-bottom:0;padding-top:12px}
   tfoot .final{font-family:var(--display);font-size:28px}
@@ -854,12 +869,8 @@
 
     var thead = document.createElement("thead");
     var hr = document.createElement("tr");
-    var corner = el("th","corner rowhead");
-    var cornerIn = el("div","rh-in");
-    cornerIn.appendChild(el("div","rh-head","Hand"));
-    cornerIn.appendChild(el("div",null,"Dealer"));
-    corner.appendChild(cornerIn);
-    hr.appendChild(corner);
+    hr.appendChild(el("th","corner rowhead","Hand"));
+    hr.appendChild(el("th","cell dealer-cell","Dealer"));
 
     var finals = totalsThrough(S.hands.length - 1);
     var colOrder = S.names.map(function(nm,i){ return i; });
@@ -883,9 +894,12 @@
       var rhIn = el("div","rh-in");
       rhIn.appendChild(el("div","rh-cards", String(h.cards)));
       rhIn.appendChild(el("div","rh-suit" + (s && s.red ? " red":""), s ? s.g : "·"));
-      rhIn.appendChild(el("div","rh-deal", S.names[h.dealer].slice(0,10)));
       rh.appendChild(rhIn);
       tr.appendChild(rh);
+
+      var dealer = el("td","cell dealer-cell");
+      dealer.appendChild(el("div","rh-deal", S.names[h.dealer].slice(0,10)));
+      tr.appendChild(dealer);
 
       colOrder.forEach(function(pi){
         var td = el("td","cell");
@@ -920,6 +934,7 @@
     var tfoot = document.createElement("tfoot");
     var fr = document.createElement("tr");
     fr.appendChild(el("th","rowhead","Total"));
+    fr.appendChild(el("td","cell dealer-cell",""));
     var best = Math.max.apply(null, running);
     colOrder.forEach(function(pi){
       var v = running[pi];
