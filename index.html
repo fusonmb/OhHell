@@ -211,7 +211,12 @@
     letter-spacing:.08em;text-transform:uppercase;
     border-bottom:1px solid var(--line);white-space:nowrap;
   }
-  table.score thead th.corner{text-align:left;left:0;z-index:3}
+  /* The corner heads two things at once, so its labels line up with the
+     row content below: .rh-head spans .rh-cards + .rh-suit, which puts
+     "Dealer" exactly over the names.  Left padding drops to 0 to match
+     th.rowhead, or the header would sit 8px right of its column. */
+  table.score thead th.corner{text-align:left;left:0;z-index:3;padding-left:0}
+  .rh-head{width:44px}
   th.rowhead,td.cell{min-width:74px}
   th.rowhead{
     position:sticky;left:0;background:var(--ground-2);z-index:1;
@@ -849,7 +854,11 @@
 
     var thead = document.createElement("thead");
     var hr = document.createElement("tr");
-    var corner = el("th","corner rowhead","Hand");
+    var corner = el("th","corner rowhead");
+    var cornerIn = el("div","rh-in");
+    cornerIn.appendChild(el("div","rh-head","Hand"));
+    cornerIn.appendChild(el("div",null,"Dealer"));
+    corner.appendChild(cornerIn);
     hr.appendChild(corner);
 
     var finals = totalsThrough(S.hands.length - 1);
@@ -874,7 +883,7 @@
       var rhIn = el("div","rh-in");
       rhIn.appendChild(el("div","rh-cards", String(h.cards)));
       rhIn.appendChild(el("div","rh-suit" + (s && s.red ? " red":""), s ? s.g : "·"));
-      rhIn.appendChild(el("div","rh-deal", S.names[h.dealer].slice(0,8) + " deals"));
+      rhIn.appendChild(el("div","rh-deal", S.names[h.dealer].slice(0,10)));
       rh.appendChild(rhIn);
       tr.appendChild(rh);
 
