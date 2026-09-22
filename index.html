@@ -104,8 +104,8 @@
     border:1px solid var(--line);border-radius:2px;
     padding:10px 12px;width:100%;
   }
-  label.field{display:block;margin-bottom:14px}
-  label.field .lbl{
+  .field{display:block;margin-bottom:14px}
+  .field .lbl{
     display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--steel);margin-bottom:6px;
   }
@@ -183,6 +183,16 @@
   .chip:hover:not([disabled]){border-color:var(--steel)}
   .chip.on{background:var(--card);border-color:var(--card);color:var(--ink)}
   .chip[disabled]{opacity:.25;cursor:not-allowed;text-decoration:line-through}
+  /* Name chips, not bid numbers: body face, shorter, and truncated so a
+     long name cannot stretch the row. */
+  .chip.who{
+    min-width:0;height:34px;padding:0 12px;max-width:150px;
+    font-family:var(--body);font-size:13px;letter-spacing:.02em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  /* Gold marks the dealer here as it does on the play screen. */
+  .chip.who.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .deals-first{margin-top:16px}
   .chip.on.exact{background:var(--gold);border-color:var(--gold)}
 
   .tally{
@@ -333,7 +343,7 @@
     return {
       stage:"setup",
       names:["Player 1","Player 2","Player 3","Player 4"],
-      opts:{pattern:"down-up", maxCards:7, hook:false, bonus:10, fail:"tricks", slam:true, decks:1},
+      opts:{pattern:"down-up", maxCards:7, hook:false, bonus:10, fail:"tricks", slam:true, decks:1, firstDealer:0},
       hands:[]
     };
   }
@@ -377,8 +387,9 @@
   }
 
   function buildHands(names, opts){
+    var first = opts.firstDealer || 0;
     return cardSequence(opts.pattern, opts.maxCards).map(function(c,idx){
-      return {cards:c, dealer: idx % names.length, trump:null, bids:null, tricks:null};
+      return {cards:c, dealer: (idx + first) % names.length, trump:null, bids:null, tricks:null};
     });
   }
 
@@ -506,6 +517,9 @@
       : "players · up to 7 on one deck, 12 on two"));
     p.appendChild(c);
 
+    var dealerChips = [];
+    function seatName(i){ return (S.names[i] || "").trim() || ("Player " + (i+1)); }
+
     var names = el("div","names");
     S.names.forEach(function(nm,i){
       var slot = el("div","name-slot");
@@ -513,12 +527,32 @@
       var inp = document.createElement("input");
       inp.type = "text"; inp.value = nm; inp.maxLength = 18;
       inp.setAttribute("aria-label","Name of player " + (i+1));
-      inp.oninput = function(){ S.names[i] = inp.value; };
+      inp.oninput = function(){
+        S.names[i] = inp.value;
+        /* typing a name does not redraw the page, so the chip below would
+           otherwise sit there showing the old one */
+        if(dealerChips[i]) dealerChips[i].textContent = seatName(i);
+      };
       inp.onfocus = function(){ inp.select(); };
       slot.appendChild(inp);
       names.appendChild(slot);
     });
     p.appendChild(names);
+
+    var dealerF = el("div","field deals-first");
+    dealerF.appendChild(el("span","lbl","Deals the first hand"));
+    var dchips = el("div","chips");
+    S.names.forEach(function(nm,i){
+      var c = el("button","chip who" + (S.opts.firstDealer === i ? " on" : ""));
+      c.type = "button";
+      c.textContent = seatName(i);
+      c.setAttribute("aria-pressed", S.opts.firstDealer === i ? "true" : "false");
+      c.onclick = function(){ S.opts.firstDealer = i; render(); };
+      dealerChips[i] = c;
+      dchips.appendChild(c);
+    });
+    dealerF.appendChild(dchips);
+    p.appendChild(dealerF);
     app.appendChild(p);
 
     // deal pattern
@@ -662,6 +696,8 @@
     if(S.names.length > 7) S.opts.decks = 2;
     var cap = maxAllowed(S.names.length, S.opts.decks);
     if(S.opts.maxCards > cap) S.opts.maxCards = cap;
+    /* written this way so an absent setting falls back too */
+    if(!(S.opts.firstDealer < S.names.length)) S.opts.firstDealer = 0;
   }
 
   /* ---------- hand entry ---------- */
@@ -1035,6 +1071,7 @@
       if(!S.opts) S.opts = newSetup().opts;
       if(S.opts.slam === undefined) S.opts.slam = true;
       if(S.opts.decks === undefined) S.opts.decks = 1;
+      if(S.opts.firstDealer === undefined) S.opts.firstDealer = 0;
     } else {
       S = newSetup();
     }
